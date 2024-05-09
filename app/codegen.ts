@@ -1,19 +1,30 @@
-
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: "http://localhost:1337",
-  documents: "src/graphql",
-  generates: {
-    "src/graphql/generated": {
-      preset: "client",
-      plugins: []
+  schema: [
+    {
+      'http://127.0.0.1:1337/graphql': {
+        headers: {
+          Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+        }
+      },
     },
-    "./graphql.schema.json": {
-      plugins: ["introspection"]
-    }
-  }
+  ],
+  generates: {
+    [process.cwd() + '/src/graphql/generated/gql.ts']: {
+      plugins: [
+        'typescript',
+        'typescript-operations',
+        'typed-document-node',
+      ],
+      config: {
+        omitOperationSuffix: true,
+        preResolveTypes: true,
+        dedupeFragments: true,
+      },
+    },
+  },
 };
 
 export default config;
